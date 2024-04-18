@@ -17,7 +17,7 @@ import {
   RandomizedLight,
 } from "@react-three/drei";
 import { RGBELoader,FullScreenQuad } from "three-stdlib";
-
+import { EffectComposer, Bloom } from "@react-three/postprocessing";
 
 import CausticsPlaneMaterial from "./CausticsPlaneMaterial.jsx";
 import CausticsComputeMaterial from "./CausticsComputeMaterial.jsx";
@@ -59,6 +59,18 @@ const TetrahedronGeo = forwardRef((props, ref) => {
 })
 
 const TorusGeometry = forwardRef((props, ref) => {
+  return (
+    <mesh
+      ref={ref}
+      scale={0.4}
+      position={[0, 3, 0]}
+    >
+      <torusGeometry args={[5, 2, 4, 4]} />
+      <MeshTransmissionMaterial backside {...config} />
+    </mesh>
+  )
+})
+const TorusknotGeometry = forwardRef((props, ref) => {
   return (
     <mesh
       ref={ref}
@@ -154,14 +166,19 @@ const TorusGeometry = forwardRef((props, ref) => {
 
 const App = () => {
   return (
-    <Canvas shadows dpr={[1, 2]}>
-      <color attach='background' args={["#000000"]} />
+    <Canvas shadows orthographic dpr={[1, 2]}>
+      <color attach='background' args={["#17171b"]} />
       <OrbitControls />
+      {/* <ambientLight intensity={3}/> */}
+      {/* <directionalLight intensity={0.1} position={[-10, 5, 2]} />
+<directionalLight intensity={0.1} position={[0, 8, 2]} /> */}
       <Caustics />
-      <PerspectiveCamera makeDefault position={[10, 10, 10]} fov={65} />
+      {/* <PerspectiveCamera makeDefault position={[10, 10, 10]} fov={65} /> */}
       {/* <Environment
         files="https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/1k/syferfontein_0d_clear_puresky_1k.hdr"
         ground={{ height: 45, radius: 100, scale: 300 }}
+        resolution={4}
+        blur={5}
       /> */}
       {/* <Scene /> */}
     </Canvas>
@@ -360,8 +377,8 @@ const Caustics = () => {
         color="#fff"
         target={causticsPlane.current}
       />
-      {/* <TorusGeometry ref={mesh}/> */}
-      <TetrahedronGeo ref={mesh}/>
+      <TorusGeometry ref={mesh}/>
+      {/* <TetrahedronGeo ref={mesh}/> */}
       <mesh ref={causticsPlane} receiveShadow rotation={[-Math.PI / 2, 0, 0]}>
         <planeGeometry />
       </mesh>
