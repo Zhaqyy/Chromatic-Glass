@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import React, {  useRef, useState, useMemo, forwardRef } from "react";
+import React, { useRef, useState, useMemo, forwardRef } from "react";
 import { Canvas, useFrame, useLoader } from "@react-three/fiber";
 import {
   Box,
@@ -16,7 +16,7 @@ import {
   AccumulativeShadows,
   RandomizedLight,
 } from "@react-three/drei";
-import { RGBELoader,FullScreenQuad } from "three-stdlib";
+import { RGBELoader, FullScreenQuad } from "three-stdlib";
 import { EffectComposer, Bloom } from "@react-three/postprocessing";
 
 import CausticsPlaneMaterial from "./CausticsPlaneMaterial.jsx";
@@ -24,20 +24,19 @@ import CausticsComputeMaterial from "./CausticsComputeMaterial.jsx";
 import NormalMaterial from "./NormalMaterial.jsx";
 import { MeshTransmissionMaterial } from "./MeshTransmissionMaterial.jsx";
 
-
 const config = {
-  backsideThickness: 0.3,
-  thickness: 0.3,
+  backsideThickness: 0.9,
+  thickness: 1.9,
   samples: 8,
   transmission: 1,
-  clearcoat: 0.4,
-  clearcoatRoughness: 0.1,
-  chromaticAberration: 2.25,
-  anisotropy: 0.2,
+  clearcoat: 0,
+  clearcoatRoughness: 0,
+  chromaticAberration: 1.25,
+  anisotropy: 0.3,
   roughness: 0,
-  distortion: 0,
-  distortionScale: 0.09,
-  temporalDistortion: 0,
+  distortion: 1,
+  distortionScale: 1,
+  temporalDistortion: 0.02,
   ior: 1.25,
   color: "#ffffff",
 };
@@ -45,43 +44,35 @@ const config = {
 const TetrahedronGeo = forwardRef((props, ref) => {
   return (
     <Tetrahedron
-    ref={ref}
-    args={[5, 0]}
-    rotation={[(Math.PI / 180) * 125, (Math.PI / 180) * 45, 0]}
-    position={[0, 3, 0]}
-    castShadow
-    receiveShadow
-  >
-    <MeshTransmissionMaterial  backside  {...config} />
-
-  </Tetrahedron>
-  )
-})
+      ref={ref}
+      args={[5, 0]}
+      rotation={[(Math.PI / 180) * 125, (Math.PI / 180) * 45, 0]}
+      position={[0, 3, 0]}
+      castShadow
+      receiveShadow
+    >
+      <MeshTransmissionMaterial backside {...config} />
+    </Tetrahedron>
+  );
+});
 
 const TorusGeometry = forwardRef((props, ref) => {
+  
   return (
-    <mesh
-      ref={ref}
-      scale={0.4}
-      position={[0, 3, 0]}
-    >
-      <torusGeometry args={[5, 2, 4, 4]} />
+    <mesh ref={ref} scale={0.5} position={[0, 0, 0]}>
+      <torusGeometry args={[5, 1, 4, 4]} />
       <MeshTransmissionMaterial backside {...config} />
     </mesh>
-  )
-})
+  );
+});
 const TorusknotGeometry = forwardRef((props, ref) => {
   return (
-    <mesh
-      ref={ref}
-      scale={0.4}
-      position={[0, 6.5, 0]}
-    >
+    <mesh ref={ref} scale={0.4} position={[0, 6.5, 0]}>
       <torusKnotGeometry args={[10, 3, 600, 160]} />
       <MeshTransmissionMaterial backside {...config} />
     </mesh>
-  )
-})
+  );
+});
 
 // const Scene = () => {
 
@@ -104,7 +95,6 @@ const TorusknotGeometry = forwardRef((props, ref) => {
 //   };
 
 //   const texture = useLoader(RGBELoader, 'https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/1k/aerodynamics_workshop_1k.hdr')
- 
 
 //   return (
 //     <>
@@ -133,10 +123,10 @@ const TorusknotGeometry = forwardRef((props, ref) => {
 //             ior={1.8}
 //             fresnel={1}
 //             fastChroma
-            
+
 //             envMap={texture}
 //           /> */}
-          
+
 //           <MeshTransmissionMaterial  color="#FF8F20"  {...properties} />
 
 //         </Tetrahedron>
@@ -166,34 +156,37 @@ const TorusknotGeometry = forwardRef((props, ref) => {
 
 const App = () => {
   return (
-    <Canvas shadows orthographic dpr={[1, 2]}>
-      <color attach='background' args={["#17171b"]} />
+    <Canvas shadows orthographic dpr={[1, 2]} camera={{ 
+      // position: [-0.8, 1.25, 2.45]
+      zoom: 70 
+    }}>
+      <color attach='background' args={["#000000"]} />
       <OrbitControls />
       {/* <ambientLight intensity={3}/> */}
-      {/* <directionalLight intensity={0.1} position={[-10, 5, 2]} />
-<directionalLight intensity={0.1} position={[0, 8, 2]} /> */}
+      {/* <directionalLight intensity={0.07} position={[-5, 5, 0]} /> */}
+      {/* <directionalLight intensity={0.1} position={[0, 8, 2]} /> */}
       <Caustics />
       {/* <PerspectiveCamera makeDefault position={[10, 10, 10]} fov={65} /> */}
-      {/* <Environment
-        files="https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/1k/syferfontein_0d_clear_puresky_1k.hdr"
-        ground={{ height: 45, radius: 100, scale: 300 }}
-        resolution={4}
-        blur={5}
-      /> */}
+      <Environment
+        files="./studio.hdr"
+        ground={{ height: 45, radius: 100, scale: 1001 }}
+        resolution={1}
+        blur={1}
+      />
       {/* <Scene /> */}
+      {/* <EffectComposer disableNormalPass>
+        <Bloom mipmapBlur luminanceThreshold={0.05} radius={0.1} />
+      </EffectComposer> */}
     </Canvas>
   );
 };
 
 export default App;
 
-
 const Caustics = () => {
   const mesh = useRef();
   const causticsPlane = useRef();
   const spotlightRef = useRef();
-
-  
 
   const {
     light = new THREE.Vector3(-10, 13, -10),
@@ -202,15 +195,11 @@ const Caustics = () => {
     displace = true,
     amplitude = 0.05,
     frequency = 5.0,
-  } = {}
-
+  } = {};
 
   const normalRenderTarget = useFBO(2000, 2000, {});
-  const [normalCamera] = useState(
-    () => new THREE.PerspectiveCamera(65, 1, 0.1, 1000)
-  );
+  const [normalCamera] = useState(() => new THREE.PerspectiveCamera(65, 1, 0.1, 1000));
   const [normalMaterial] = useState(() => new NormalMaterial());
-
 
   const causticsComputeRenderTarget = useFBO(2000, 2000, {});
   const [causticsQuad] = useState(() => new FullScreenQuad());
@@ -222,7 +211,7 @@ const Caustics = () => {
   causticsPlaneMaterial.blendSrc = THREE.OneFactor;
   causticsPlaneMaterial.blendDst = THREE.SrcAlphaFactor;
 
-  useFrame((state) => {
+  useFrame(state => {
     const { gl, clock, camera } = state;
 
     camera.lookAt(0, 0, 0);
@@ -230,64 +219,35 @@ const Caustics = () => {
     const bounds = new THREE.Box3().setFromObject(mesh.current, true);
 
     let boundsVertices = [];
-    boundsVertices.push(
-      new THREE.Vector3(bounds.min.x, bounds.min.y, bounds.min.z)
-    );
-    boundsVertices.push(
-      new THREE.Vector3(bounds.min.x, bounds.min.y, bounds.max.z)
-    );
-    boundsVertices.push(
-      new THREE.Vector3(bounds.min.x, bounds.max.y, bounds.min.z)
-    );
-    boundsVertices.push(
-      new THREE.Vector3(bounds.min.x, bounds.max.y, bounds.max.z)
-    );
-    boundsVertices.push(
-      new THREE.Vector3(bounds.max.x, bounds.min.y, bounds.min.z)
-    );
-    boundsVertices.push(
-      new THREE.Vector3(bounds.max.x, bounds.min.y, bounds.max.z)
-    );
-    boundsVertices.push(
-      new THREE.Vector3(bounds.max.x, bounds.max.y, bounds.min.z)
-    );
-    boundsVertices.push(
-      new THREE.Vector3(bounds.max.x, bounds.max.y, bounds.max.z)
-    );
+    boundsVertices.push(new THREE.Vector3(bounds.min.x, bounds.min.y, bounds.min.z));
+    boundsVertices.push(new THREE.Vector3(bounds.min.x, bounds.min.y, bounds.max.z));
+    boundsVertices.push(new THREE.Vector3(bounds.min.x, bounds.max.y, bounds.min.z));
+    boundsVertices.push(new THREE.Vector3(bounds.min.x, bounds.max.y, bounds.max.z));
+    boundsVertices.push(new THREE.Vector3(bounds.max.x, bounds.min.y, bounds.min.z));
+    boundsVertices.push(new THREE.Vector3(bounds.max.x, bounds.min.y, bounds.max.z));
+    boundsVertices.push(new THREE.Vector3(bounds.max.x, bounds.max.y, bounds.min.z));
+    boundsVertices.push(new THREE.Vector3(bounds.max.x, bounds.max.y, bounds.max.z));
 
-    const lightDir = new THREE.Vector3(
-      light.x,
-      light.y,
-      light.z
-    ).normalize();
+    const lightDir = new THREE.Vector3(light.x, light.y, light.z).normalize();
 
     // Calculates the projected coordinates of the vertices onto the plane
     // perpendicular to the light direction
-    const projectedCoordinates = boundsVertices.map((v) =>
-      {
-        const newX = v.x + lightDir.x * (-v.y / lightDir.y);
-        const newY = v.y + lightDir.y * (-v.y / lightDir.y);
-        const newZ = v.z + lightDir.z * (-v.y / lightDir.y);
+    const projectedCoordinates = boundsVertices.map(v => {
+      const newX = v.x + lightDir.x * (-v.y / lightDir.y);
+      const newY = v.y + lightDir.y * (-v.y / lightDir.y);
+      const newZ = v.z + lightDir.z * (-v.y / lightDir.y);
 
-        return new THREE.Vector3(newX, newY, newZ);
-      }
-    );
+      return new THREE.Vector3(newX, newY, newZ);
+    });
 
     // Calculates the combined spatial coordinates of the projected vertices
     // and divides by the number of vertices to get the center position
-    const centerPos = projectedCoordinates
-      .reduce((a, b) => a.add(b), new THREE.Vector3(0, 0, 0))
-      .divideScalar(projectedCoordinates.length);
+    const centerPos = projectedCoordinates.reduce((a, b) => a.add(b), new THREE.Vector3(0, 0, 0)).divideScalar(projectedCoordinates.length);
 
     // Calculates the scale of the caustic plane based on the distance of the
     // furthest vertex from the center (using euclidean distance)
     const scale = projectedCoordinates
-      .map((p) =>
-        Math.sqrt(
-          Math.pow(p.x - centerPos.x, 2),
-          Math.pow(p.z - centerPos.z, 2)
-        )
-      )
+      .map(p => Math.sqrt(Math.pow(p.x - centerPos.x, 2), Math.pow(p.z - centerPos.z, 2)))
       .reduce((a, b) => Math.max(a, b), 0);
 
     // The scale of the plane is multiplied by this correction factor to
@@ -295,11 +255,7 @@ const Caustics = () => {
     // my normal projection or my math must be a bit off, so I'm trying to be very conservative here
     const scaleCorrection = 1.75;
 
-    causticsPlane.current.scale.set(
-      scale * scaleCorrection,
-      scale * scaleCorrection,
-      scale * scaleCorrection
-    );
+    causticsPlane.current.scale.set(scale * scaleCorrection, scale * scaleCorrection, scale * scaleCorrection);
     causticsPlane.current.position.set(centerPos.x, centerPos.y, centerPos.z);
 
     normalCamera.position.set(light.x, light.y, light.z);
@@ -339,64 +295,43 @@ const Caustics = () => {
 
     causticsPlane.current.material = causticsPlaneMaterial;
 
-    causticsPlane.current.material.uniforms.uTexture.value =
-      causticsComputeRenderTarget.texture;
-    causticsPlane.current.material.uniforms.uAberration.value =
-    chromaticAberration;
+    causticsPlane.current.material.uniforms.uTexture.value = causticsComputeRenderTarget.texture;
+    causticsPlane.current.material.uniforms.uAberration.value = chromaticAberration;
 
     gl.setRenderTarget(null);
 
-    spotlightRef.current.position.set(light.x, light.y, light.z);
-    spotlightRef.current.distance = Math.sqrt(
-      Math.pow(
-        spotlightRef.current.position.x - causticsPlane.current.position.x,
-        2
-      ) +
-        Math.pow(
-          spotlightRef.current.position.y - causticsPlane.current.position.y,
-          2
-        ) +
-        Math.pow(
-          spotlightRef.current.position.z - causticsPlane.current.position.z,
-          2
-        )
-    );
+    // spotlightRef.current.position.set(light.x, light.y, light.z);
+    // spotlightRef.current.distance = Math.sqrt(
+    //   Math.pow(spotlightRef.current.position.x - causticsPlane.current.position.x, 2) +
+    //     Math.pow(spotlightRef.current.position.y - causticsPlane.current.position.y, 2) +
+    //     Math.pow(spotlightRef.current.position.z - causticsPlane.current.position.z, 2)
+    // );
   });
 
   return (
     <>
-      <SpotLight
+      {/* <SpotLight
         castShadow
         ref={spotlightRef}
-        penumbra={1}
+        penumbra={8}
         distance={25}
-        angle={0.15}
+        angle={0.95}
         attenuation={20}
         anglePower={1}
-        intensity={1}
-        color="#fff"
-        target={causticsPlane.current}
-      />
-      <TorusGeometry ref={mesh}/>
+        intensity={0.1}
+        color='#fff'
+        // target={causticsPlane.current}
+      /> */}
+      <TorusGeometry ref={mesh} />
+      {/* <TorusknotGeometry ref={mesh} /> */}
       {/* <TetrahedronGeo ref={mesh}/> */}
       <mesh ref={causticsPlane} receiveShadow rotation={[-Math.PI / 2, 0, 0]}>
-        <planeGeometry />
+        {/* <planeGeometry /> */}
       </mesh>
-      <mesh
-        receiveShadow
-        rotation={[-Math.PI / 2, 0, 0]}
-        position={[0, -0.2, -0.2]}
-      >
+      {/* <mesh receiveShadow rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.2, -0.2]}>
         <planeGeometry args={[50, 50]} />
-        <meshPhongMaterial
-          transparent
-          blending={THREE.CustomBlending}
-          blendSrc={THREE.OneFactor}
-          blendDst={THREE.SrcAlphaFactor}
-        />
-      </mesh>
+        <meshPhongMaterial transparent blending={THREE.CustomBlending} blendSrc={THREE.OneFactor} blendDst={THREE.SrcAlphaFactor} />
+      </mesh> */}
     </>
   );
 };
-
-
