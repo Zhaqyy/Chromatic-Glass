@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import React, { useRef, useState, useMemo, forwardRef } from "react";
-import { Canvas, useFrame, useLoader, useThree  } from "@react-three/fiber";
+import { Canvas, useFrame, useLoader, useThree } from "@react-three/fiber";
 import {
   Box,
   OrbitControls,
@@ -23,6 +23,7 @@ import { RGBELoader, FullScreenQuad } from "three-stdlib";
 // import { dampE } from "maath/easing";
 import { easing } from "maath";
 import { EffectComposer, Bloom } from "@react-three/postprocessing";
+import { Physics, RigidBody, BallCollider } from "@react-three/rapier";
 
 import CausticsPlaneMaterial from "./CausticsPlaneMaterial.jsx";
 import CausticsComputeMaterial from "./CausticsComputeMaterial.jsx";
@@ -82,30 +83,21 @@ const TorusGeometry = forwardRef((props, ref) => {
   //   : MathUtils.lerp(ref.current.rotation.x, 0, 0.025);
   // });
 
-  useFrame((state, delta) => {
-    const xRotation = state.pointer.x; // Mouse movement along the X-axis
-    const yRotation = state.pointer.y; // Mouse movement along the Y-axis
+  // useFrame((state, delta) => {
+  //   const xRotation = state.pointer.x; // Mouse movement along the X-axis
+  //   const yRotation = state.pointer.y; // Mouse movement along the Y-axis
 
-    const targetRotation = [
-      -Math.PI / 0.1 - yRotation / 2,
-      -Math.PI / 0.1 - xRotation / 2,
-      0,
-    ];
-    easing.dampE(ref.current.rotation, targetRotation, 0.9, delta);
+  //   const targetRotation = [-Math.PI / 0.1 - yRotation / 2, -Math.PI / 0.1 - xRotation / 2, 0];
+  //   easing.dampE(ref.current.rotation, targetRotation, 0.9, delta);
 
-    // ref.current.rotation.y = yAngle.get();
-    // ref.current.position.set(Xpos.get(), 0, 0);
-    // ref.current.scale.set(scale.get());
-    // ref.current.scale.y = scale.get();
-
-    // console.log(ref.current.position.x);
-  });
-
- 
+  // });
 
   return (
-    <mesh ref={ref} scale={0.5} position={[0, 0, 0]} 
-    // onPointerOver={() => setHovered(true)} onPointerOut={() => setHovered(false)}
+    <mesh
+      ref={ref}
+      scale={0.5}
+      position={[0, 0, 0]}
+      // onPointerOver={() => setHovered(true)} onPointerOut={() => setHovered(false)}
     >
       <torusGeometry args={[5, 1, 4, 4]} />
       <MeshTransmissionMaterial backside {...config} />
@@ -121,90 +113,8 @@ const TorusknotGeometry = forwardRef((props, ref) => {
   );
 });
 
-// const Scene = () => {
-
-//   let properties = {
-//     samples: 6,
-//     resolution: 64,
-//     backside: true,
-//     backsideThickness: 0.3,
-//     transmission: 1,
-//     roughness: 0,
-//     thickness: 0.2,
-//     chromaticAberration: 1,
-//     ior: 2,
-//     anisotropy: 0.3,
-//     clearcoat: 0,
-//     clearcoatRoughness: 0.0,
-//     distortion: 4,
-//     distortionScale: 1,
-//     temporalDistortion: 0.2,
-//   };
-
-//   const texture = useLoader(RGBELoader, 'https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/1k/aerodynamics_workshop_1k.hdr')
-
-//   return (
-//     <>
-
-//       <Caustics
-//         color='#FF8F20'
-//         position={[0, -0.5, 0]}
-//         lightSource={[2, 2, -4]}
-//         worldRadius={0.01}
-//         ior={1.2}
-//         intensity={0.005}
-//         backfaces
-//         backfaceIor={1.1}
-//       >
-//         <Tetrahedron
-//           args={[1.5, 0]}
-//           rotation={[(Math.PI / 180) * 125, (Math.PI / 180) * 45, 0]}
-//           position={[0, 0.7, 0]}
-//           castShadow
-//           receiveShadow
-//         >
-//           {/* <MeshRefractionMaterial
-//             color='#FF8F20'
-//             bounces={8}
-//             aberrationStrength={2}
-//             ior={1.8}
-//             fresnel={1}
-//             fastChroma
-
-//             envMap={texture}
-//           /> */}
-
-//           <MeshTransmissionMaterial  color="#FF8F20"  {...properties} />
-
-//         </Tetrahedron>
-//       </Caustics>
-
-//       <spotLight decay={0} position={[0, 3, 3]} angle={0.15} penumbra={1} intensity={3} />
-//       <pointLight decay={0} position={[-2, -2, -2]} />
-//       <AccumulativeShadows
-//         temporal
-//         frames={100}
-//         color='orange'
-//         colorBlend={2}
-//         toneMapped={true}
-//         alphaTest={0.7}
-//         opacity={1}
-//         scale={12}
-//         position={[0, -0.5, 0]}
-//       >
-//         <RandomizedLight amount={8} radius={10} ambient={0.5} position={[5, 5, -10]} bias={0.001} />
-//       </AccumulativeShadows>
-//       <Environment files='https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/1k/aerodynamics_workshop_1k.hdr' />
-
-//       <ambientLight intensity={4} />
-//     </>
-//   );
-// };
-
 const App = () => {
-  
-const isMobile = window.innerWidth < 768;
-
+  const isMobile = window.innerWidth < 768;
 
   return (
     <Canvas
@@ -217,24 +127,56 @@ const isMobile = window.innerWidth < 768;
       }}
     >
       <color attach='background' args={["#000000"]} />
-      <OrbitControls />
-      {/* <ambientLight intensity={3}/> */}
-      {/* <directionalLight intensity={0.07} position={[-5, 5, 0]} /> */}
-      {/* <directionalLight intensity={0.1} position={[0, 8, 2]} /> */}
-      {/* <Typography/> */}
-      <Text scale={isMobile ? 0.4: 1} children="THE ENIGMA" font= {'./Inter-Regular.woff'} letterSpacing={0.1} position={[0, -4, 2]} color={'white'} fontSize={2}  />
-      <Caustics />
+      {/* <OrbitControls /> */}
+
+      <Text
+        scale={isMobile ? 0.4 : 1}
+        children='THE ENIGMA'
+        font={"./Inter-Regular.woff"}
+        letterSpacing={0.1}
+        position={[0, -4, 2]}
+        color={"white"}
+        fontSize={2}
+      />
+      {/* <Caustics /> */}
+      <Interact  />
       {/* <PerspectiveCamera makeDefault position={[10, 10, 10]} fov={65} /> */}
       <Environment files='./studio.hdr' ground={{ height: 45, radius: 100, scale: 1001 }} resolution={1} blur={1} />
-      {/* <Scene /> */}
       {/* <EffectComposer disableNormalPass>
-        <Bloom mipmapBlur luminanceThreshold={0.05} radius={0.1} />
+        <Bloom mipmapBlur luminanceThreshold={0.9} radius={0.05} />
       </EffectComposer> */}
     </Canvas>
   );
 };
 
 export default App;
+
+const Interact = () => {
+  const ref = useRef();
+  const push = () => {
+    if (ref.current) {
+      const random = 9 * Math.random();
+      ref.current.applyImpulseAtPoint({ x: 0, y: 0, z: 1 }, { x: random, y: random, z: random }, true);
+    }
+  };
+  return (
+    <Physics gravity={[0, 0, 0]}>
+      <RigidBody
+        restitution={0}
+        colliders='cuboid'
+        linearDamping={5}
+        angularDamping={1}
+        friction={0.1}
+        ref={ref}
+        // position={pos}
+        // ref={api}
+        // {...props}
+      >
+        <TorusGeometry onClick={push} />
+      </RigidBody>
+    </Physics>
+  );
+};
 
 const Caustics = () => {
   const mesh = useRef();
