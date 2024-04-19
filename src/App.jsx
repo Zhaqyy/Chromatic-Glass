@@ -17,10 +17,11 @@ import {
   AccumulativeShadows,
   RandomizedLight,
 } from "@react-three/drei";
-import { MathUtils } from "three";
+// import { MathUtils } from "three";
 import { RGBELoader, FullScreenQuad } from "three-stdlib";
 // import { lerp } from "maath";
-import { dampE } from "maath/easing";
+// import { dampE } from "maath/easing";
+import { easing } from "maath";
 import { EffectComposer, Bloom } from "@react-three/postprocessing";
 
 import CausticsPlaneMaterial from "./CausticsPlaneMaterial.jsx";
@@ -80,6 +81,25 @@ const TorusGeometry = forwardRef((props, ref) => {
   //   ? MathUtils.lerp(ref.current.rotation.x, -Math.PI * 2, 0.025)
   //   : MathUtils.lerp(ref.current.rotation.x, 0, 0.025);
   // });
+
+  useFrame((state, delta) => {
+    const xRotation = state.pointer.x; // Mouse movement along the X-axis
+    const yRotation = state.pointer.y; // Mouse movement along the Y-axis
+
+    const targetRotation = [
+      -Math.PI / 0.1 - yRotation / 2,
+      -Math.PI / 0.1 - xRotation / 2,
+      0,
+    ];
+    easing.dampE(ref.current.rotation, targetRotation, 0.9, delta);
+
+    // ref.current.rotation.y = yAngle.get();
+    // ref.current.position.set(Xpos.get(), 0, 0);
+    // ref.current.scale.set(scale.get());
+    // ref.current.scale.y = scale.get();
+
+    // console.log(ref.current.position.x);
+  });
 
  
 
@@ -182,6 +202,10 @@ const TorusknotGeometry = forwardRef((props, ref) => {
 // };
 
 const App = () => {
+  
+const isMobile = window.innerWidth < 768;
+
+
   return (
     <Canvas
       shadows
@@ -198,7 +222,7 @@ const App = () => {
       {/* <directionalLight intensity={0.07} position={[-5, 5, 0]} /> */}
       {/* <directionalLight intensity={0.1} position={[0, 8, 2]} /> */}
       {/* <Typography/> */}
-      <Text children="THE ENIGMA" font= {'./Inter-Regular.woff'} letterSpacing={0.1} position={[0, -4, 2]} color={'white'} fontSize={2}  />
+      <Text scale={isMobile ? 0.4: 1} children="THE ENIGMA" font= {'./Inter-Regular.woff'} letterSpacing={0.1} position={[0, -4, 2]} color={'white'} fontSize={2}  />
       <Caustics />
       {/* <PerspectiveCamera makeDefault position={[10, 10, 10]} fov={65} /> */}
       <Environment files='./studio.hdr' ground={{ height: 45, radius: 100, scale: 1001 }} resolution={1} blur={1} />
