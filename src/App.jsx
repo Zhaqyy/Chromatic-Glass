@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import React, { useRef, useState, useMemo, forwardRef } from "react";
-import { Canvas, useFrame, useLoader } from "@react-three/fiber";
+import { Canvas, useFrame, useLoader, useThree  } from "@react-three/fiber";
 import {
   Box,
   OrbitControls,
@@ -13,10 +13,14 @@ import {
   MeshRefractionMaterial,
   // MeshTransmissionMaterial,
   // Caustics,
+  Text,
   AccumulativeShadows,
   RandomizedLight,
 } from "@react-three/drei";
+import { MathUtils } from "three";
 import { RGBELoader, FullScreenQuad } from "three-stdlib";
+// import { lerp } from "maath";
+import { dampE } from "maath/easing";
 import { EffectComposer, Bloom } from "@react-three/postprocessing";
 
 import CausticsPlaneMaterial from "./CausticsPlaneMaterial.jsx";
@@ -57,9 +61,32 @@ const TetrahedronGeo = forwardRef((props, ref) => {
 });
 
 const TorusGeometry = forwardRef((props, ref) => {
-  
+  // const [hovered, setHovered] = useState(false);
+  // let targetRotation = Math.PI; // Half a turn in radians
+  // let currentRotation = 0;
+
+  // useFrame((state, delta) => {
+  //   // Calculate the new rotation using linear interpolation (lerp)
+  //   currentRotation = lerp(currentRotation, targetRotation, 0.1);
+
+  //   // Apply the rotation to your object
+  //   ref.current.rotation.y = currentRotation;
+  // });
+
+  // useFrame((state, delta) => {
+  //   // dampE(ref.current.rotation.y, Math.PI / 2 , 0.25, delta)
+  //   // ref.current.rotation.y += 0.005;
+  //   ref.current.rotation.x = hovered
+  //   ? MathUtils.lerp(ref.current.rotation.x, -Math.PI * 2, 0.025)
+  //   : MathUtils.lerp(ref.current.rotation.x, 0, 0.025);
+  // });
+
+ 
+
   return (
-    <mesh ref={ref} scale={0.5} position={[0, 0, 0]}>
+    <mesh ref={ref} scale={0.5} position={[0, 0, 0]} 
+    // onPointerOver={() => setHovered(true)} onPointerOut={() => setHovered(false)}
+    >
       <torusGeometry args={[5, 1, 4, 4]} />
       <MeshTransmissionMaterial backside {...config} />
     </mesh>
@@ -156,23 +183,25 @@ const TorusknotGeometry = forwardRef((props, ref) => {
 
 const App = () => {
   return (
-    <Canvas shadows orthographic dpr={[1, 2]} camera={{ 
-      // position: [-0.8, 1.25, 2.45]
-      zoom: 70 
-    }}>
+    <Canvas
+      shadows
+      orthographic
+      dpr={[1, 2]}
+      camera={{
+        // position: [-0.8, 1.25, 2.45]
+        zoom: 70,
+      }}
+    >
       <color attach='background' args={["#000000"]} />
       <OrbitControls />
       {/* <ambientLight intensity={3}/> */}
       {/* <directionalLight intensity={0.07} position={[-5, 5, 0]} /> */}
       {/* <directionalLight intensity={0.1} position={[0, 8, 2]} /> */}
+      {/* <Typography/> */}
+      <Text children="THE ENIGMA" font= {'./Inter-Regular.woff'} letterSpacing={0.1} position={[0, -4, 2]} color={'white'} fontSize={2}  />
       <Caustics />
       {/* <PerspectiveCamera makeDefault position={[10, 10, 10]} fov={65} /> */}
-      <Environment
-        files="./studio.hdr"
-        ground={{ height: 45, radius: 100, scale: 1001 }}
-        resolution={1}
-        blur={1}
-      />
+      <Environment files='./studio.hdr' ground={{ height: 45, radius: 100, scale: 1001 }} resolution={1} blur={1} />
       {/* <Scene /> */}
       {/* <EffectComposer disableNormalPass>
         <Bloom mipmapBlur luminanceThreshold={0.05} radius={0.1} />
