@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import React, { useRef, useState, useMemo, forwardRef } from "react";
+import React, { useRef, useState, useMemo, forwardRef, Suspense } from "react";
 import { Canvas, useFrame, useLoader, useThree } from "@react-three/fiber";
 import {
   Box,
@@ -16,6 +16,7 @@ import {
   Text,
   AccumulativeShadows,
   RandomizedLight,
+  Preload,
 } from "@react-three/drei";
 // import { MathUtils } from "three";
 import { RGBELoader, FullScreenQuad } from "three-stdlib";
@@ -47,71 +48,71 @@ const config = {
   color: "#ffffff",
 };
 
-const TetrahedronGeo = forwardRef((props, ref) => {
-  return (
-    <Tetrahedron
-      ref={ref}
-      args={[5, 0]}
-      rotation={[(Math.PI / 180) * 125, (Math.PI / 180) * 45, 0]}
-      position={[0, 3, 0]}
-      castShadow
-      receiveShadow
-    >
-      <MeshTransmissionMaterial backside {...config} />
-    </Tetrahedron>
-  );
-});
+// const TetrahedronGeo = forwardRef((props, ref) => {
+//   return (
+//     <Tetrahedron
+//       ref={ref}
+//       args={[5, 0]}
+//       rotation={[(Math.PI / 180) * 125, (Math.PI / 180) * 45, 0]}
+//       position={[0, 3, 0]}
+//       castShadow
+//       receiveShadow
+//     >
+//       <MeshTransmissionMaterial backside {...config} />
+//     </Tetrahedron>
+//   );
+// });
 
-const TorusGeometry = forwardRef((props, ref) => {
-  // const [hovered, setHovered] = useState(false);
-  // let targetRotation = Math.PI; // Half a turn in radians
-  // let currentRotation = 0;
+// const TorusGeometry = forwardRef((props, ref) => {
+//   // const [hovered, setHovered] = useState(false);
+//   // let targetRotation = Math.PI; // Half a turn in radians
+//   // let currentRotation = 0;
 
-  // useFrame((state, delta) => {
-  //   // Calculate the new rotation using linear interpolation (lerp)
-  //   currentRotation = lerp(currentRotation, targetRotation, 0.1);
+//   // useFrame((state, delta) => {
+//   //   // Calculate the new rotation using linear interpolation (lerp)
+//   //   currentRotation = lerp(currentRotation, targetRotation, 0.1);
 
-  //   // Apply the rotation to your object
-  //   ref.current.rotation.y = currentRotation;
-  // });
+//   //   // Apply the rotation to your object
+//   //   ref.current.rotation.y = currentRotation;
+//   // });
 
-  // useFrame((state, delta) => {
-  //   // dampE(ref.current.rotation.y, Math.PI / 2 , 0.25, delta)
-  //   // ref.current.rotation.y += 0.005;
-  //   ref.current.rotation.x = hovered
-  //   ? MathUtils.lerp(ref.current.rotation.x, -Math.PI * 2, 0.025)
-  //   : MathUtils.lerp(ref.current.rotation.x, 0, 0.025);
-  // });
+//   // useFrame((state, delta) => {
+//   //   // dampE(ref.current.rotation.y, Math.PI / 2 , 0.25, delta)
+//   //   // ref.current.rotation.y += 0.005;
+//   //   ref.current.rotation.x = hovered
+//   //   ? MathUtils.lerp(ref.current.rotation.x, -Math.PI * 2, 0.025)
+//   //   : MathUtils.lerp(ref.current.rotation.x, 0, 0.025);
+//   // });
 
-  // useFrame((state, delta) => {
-  //   const xRotation = state.pointer.x; // Mouse movement along the X-axis
-  //   const yRotation = state.pointer.y; // Mouse movement along the Y-axis
+//   // useFrame((state, delta) => {
+//   //   const xRotation = state.pointer.x; // Mouse movement along the X-axis
+//   //   const yRotation = state.pointer.y; // Mouse movement along the Y-axis
 
-  //   const targetRotation = [-Math.PI / 0.1 - yRotation / 2, -Math.PI / 0.1 - xRotation / 2, 0];
-  //   easing.dampE(ref.current.rotation, targetRotation, 0.9, delta);
+//   //   const targetRotation = [-Math.PI / 0.1 - yRotation / 2, -Math.PI / 0.1 - xRotation / 2, 0];
+//   //   easing.dampE(ref.current.rotation, targetRotation, 0.9, delta);
 
-  // });
+//   // });
 
-  return (
-    <mesh
-      ref={ref}
-      scale={0.5}
-      position={[0, 0, 0]}
-      // onPointerOver={() => setHovered(true)} onPointerOut={() => setHovered(false)}
-    >
-      <torusGeometry args={[5, 1, 4, 4]} />
-      <MeshTransmissionMaterial backside {...config} />
-    </mesh>
-  );
-});
-const TorusknotGeometry = forwardRef((props, ref) => {
-  return (
-    <mesh ref={ref} scale={0.4} position={[0, 6.5, 0]}>
-      <torusKnotGeometry args={[10, 3, 600, 160]} />
-      <MeshTransmissionMaterial backside {...config} />
-    </mesh>
-  );
-});
+//   return (
+//     <mesh
+//       ref={ref}
+//       scale={0.5}
+//       // position={[0, 0, 0]}
+//       // onPointerOver={() => setHovered(true)} onPointerOut={() => setHovered(false)}
+//     >
+//       <torusGeometry args={[5, 1, 4, 4]} />
+//       <MeshTransmissionMaterial backside {...config} />
+//     </mesh>
+//   );
+// });
+// const TorusknotGeometry = forwardRef((props, ref) => {
+//   return (
+//     <mesh ref={ref} scale={0.4} position={[0, 6.5, 0]}>
+//       <torusKnotGeometry args={[10, 3, 600, 160]} />
+//       <MeshTransmissionMaterial backside {...config} />
+//     </mesh>
+//   );
+// });
 
 const App = () => {
   const isMobile = window.innerWidth < 768;
@@ -139,12 +140,15 @@ const App = () => {
         fontSize={2}
       />
       {/* <Caustics /> */}
-      <Interact  />
+      <Suspense>
+        <Interact />
+      </Suspense>
       {/* <PerspectiveCamera makeDefault position={[10, 10, 10]} fov={65} /> */}
       <Environment files='./studio.hdr' ground={{ height: 45, radius: 100, scale: 1001 }} resolution={1} blur={1} />
       {/* <EffectComposer disableNormalPass>
         <Bloom mipmapBlur luminanceThreshold={0.9} radius={0.05} />
       </EffectComposer> */}
+      <Preload all />
     </Canvas>
   );
 };
@@ -153,180 +157,204 @@ export default App;
 
 const Interact = () => {
   const ref = useRef();
+  // const push = () => {
+  //   if (ref.current) {
+  //     // const random = 100 * Math.random();
+  //     ref.current.applyImpulseAtPoint({ x: 0, y: 0, z: 10 });
+  //     // ref.current.addForceAtPoint({ x: 15, y: 15, z: 15 }, { x: random, y: random, z: random }, true);
+  //   }
+  // };
   const push = () => {
-    if (ref.current) {
-      const random = 9 * Math.random();
-      ref.current.applyImpulseAtPoint({ x: 0, y: 0, z: 1 }, { x: random, y: random, z: random }, true);
-    }
+    // if (ref.current) {
+      // const random = Math.random() - 3.5;
+      // const random = 100 + (200 * Math.random());
+      // ref.current.applyImpulse({ x: 0, y: 1, z: 0 }, true);
+      // ref.current.applyTorueImpulse({ x: 0, y: 1, z: 0 });
+      // ref.current.addForceAtPoint({ x: 15, y: 15, z: 15 }, { x: random, y: random, z: random }, true);
+      ref.current.applyTorqueImpulse({ x: 100 + (200 * Math.random()), y: 100 + (200 * Math.random()), z: 100 + (200 * Math.random()) }, true);
+    // }
   };
   return (
     <Physics gravity={[0, 0, 0]}>
       <RigidBody
         restitution={0}
         colliders='cuboid'
-        linearDamping={5}
+        linearDamping={1}
         angularDamping={1}
-        friction={0.1}
+        // friction={0.2}
         ref={ref}
-        // position={pos}
-        // ref={api}
-        // {...props}
+        mass={0.1}
+        type='dynamic'
       >
-        <TorusGeometry onClick={push} />
+        <mesh
+        onClick={push}
+      scale={0.6}
+    >
+      <torusGeometry args={[4, 1, 4, 4]} />
+      <MeshTransmissionMaterial backside {...config} />
+    </mesh>
       </RigidBody>
+      
+{/* 
+      <RigidBody ref={ref}>
+        <mesh onClick={push}>
+          <boxGeometry/>
+          <meshStandardMaterial color={"red"}/>
+        </mesh>
+      </RigidBody> */}
     </Physics>
   );
 };
 
-const Caustics = () => {
-  const mesh = useRef();
-  const causticsPlane = useRef();
-  const spotlightRef = useRef();
+// const Caustics = () => {
+//   const mesh = useRef();
+//   const causticsPlane = useRef();
+//   const spotlightRef = useRef();
 
-  const {
-    light = new THREE.Vector3(-10, 13, -10),
-    intensity = 1.5,
-    chromaticAberration = 0.3,
-    displace = true,
-    amplitude = 0.05,
-    frequency = 5.0,
-  } = {};
+//   const {
+//     light = new THREE.Vector3(-10, 13, -10),
+//     intensity = 1.5,
+//     chromaticAberration = 0.3,
+//     displace = true,
+//     amplitude = 0.05,
+//     frequency = 5.0,
+//   } = {};
 
-  const normalRenderTarget = useFBO(2000, 2000, {});
-  const [normalCamera] = useState(() => new THREE.PerspectiveCamera(65, 1, 0.1, 1000));
-  const [normalMaterial] = useState(() => new NormalMaterial());
+//   const normalRenderTarget = useFBO(2000, 2000, {});
+//   const [normalCamera] = useState(() => new THREE.PerspectiveCamera(65, 1, 0.1, 1000));
+//   const [normalMaterial] = useState(() => new NormalMaterial());
 
-  const causticsComputeRenderTarget = useFBO(2000, 2000, {});
-  const [causticsQuad] = useState(() => new FullScreenQuad());
-  const [causticsComputeMaterial] = useState(() => new CausticsComputeMaterial());
+//   const causticsComputeRenderTarget = useFBO(2000, 2000, {});
+//   const [causticsQuad] = useState(() => new FullScreenQuad());
+//   const [causticsComputeMaterial] = useState(() => new CausticsComputeMaterial());
 
-  const [causticsPlaneMaterial] = useState(() => new CausticsPlaneMaterial());
-  causticsPlaneMaterial.transparent = true;
-  causticsPlaneMaterial.blending = THREE.CustomBlending;
-  causticsPlaneMaterial.blendSrc = THREE.OneFactor;
-  causticsPlaneMaterial.blendDst = THREE.SrcAlphaFactor;
+//   const [causticsPlaneMaterial] = useState(() => new CausticsPlaneMaterial());
+//   causticsPlaneMaterial.transparent = true;
+//   causticsPlaneMaterial.blending = THREE.CustomBlending;
+//   causticsPlaneMaterial.blendSrc = THREE.OneFactor;
+//   causticsPlaneMaterial.blendDst = THREE.SrcAlphaFactor;
 
-  useFrame(state => {
-    const { gl, clock, camera } = state;
+//   useFrame(state => {
+//     const { gl, clock, camera } = state;
 
-    camera.lookAt(0, 0, 0);
+//     camera.lookAt(0, 0, 0);
 
-    const bounds = new THREE.Box3().setFromObject(mesh.current, true);
+//     const bounds = new THREE.Box3().setFromObject(mesh.current, true);
 
-    let boundsVertices = [];
-    boundsVertices.push(new THREE.Vector3(bounds.min.x, bounds.min.y, bounds.min.z));
-    boundsVertices.push(new THREE.Vector3(bounds.min.x, bounds.min.y, bounds.max.z));
-    boundsVertices.push(new THREE.Vector3(bounds.min.x, bounds.max.y, bounds.min.z));
-    boundsVertices.push(new THREE.Vector3(bounds.min.x, bounds.max.y, bounds.max.z));
-    boundsVertices.push(new THREE.Vector3(bounds.max.x, bounds.min.y, bounds.min.z));
-    boundsVertices.push(new THREE.Vector3(bounds.max.x, bounds.min.y, bounds.max.z));
-    boundsVertices.push(new THREE.Vector3(bounds.max.x, bounds.max.y, bounds.min.z));
-    boundsVertices.push(new THREE.Vector3(bounds.max.x, bounds.max.y, bounds.max.z));
+//     let boundsVertices = [];
+//     boundsVertices.push(new THREE.Vector3(bounds.min.x, bounds.min.y, bounds.min.z));
+//     boundsVertices.push(new THREE.Vector3(bounds.min.x, bounds.min.y, bounds.max.z));
+//     boundsVertices.push(new THREE.Vector3(bounds.min.x, bounds.max.y, bounds.min.z));
+//     boundsVertices.push(new THREE.Vector3(bounds.min.x, bounds.max.y, bounds.max.z));
+//     boundsVertices.push(new THREE.Vector3(bounds.max.x, bounds.min.y, bounds.min.z));
+//     boundsVertices.push(new THREE.Vector3(bounds.max.x, bounds.min.y, bounds.max.z));
+//     boundsVertices.push(new THREE.Vector3(bounds.max.x, bounds.max.y, bounds.min.z));
+//     boundsVertices.push(new THREE.Vector3(bounds.max.x, bounds.max.y, bounds.max.z));
 
-    const lightDir = new THREE.Vector3(light.x, light.y, light.z).normalize();
+//     const lightDir = new THREE.Vector3(light.x, light.y, light.z).normalize();
 
-    // Calculates the projected coordinates of the vertices onto the plane
-    // perpendicular to the light direction
-    const projectedCoordinates = boundsVertices.map(v => {
-      const newX = v.x + lightDir.x * (-v.y / lightDir.y);
-      const newY = v.y + lightDir.y * (-v.y / lightDir.y);
-      const newZ = v.z + lightDir.z * (-v.y / lightDir.y);
+//     // Calculates the projected coordinates of the vertices onto the plane
+//     // perpendicular to the light direction
+//     const projectedCoordinates = boundsVertices.map(v => {
+//       const newX = v.x + lightDir.x * (-v.y / lightDir.y);
+//       const newY = v.y + lightDir.y * (-v.y / lightDir.y);
+//       const newZ = v.z + lightDir.z * (-v.y / lightDir.y);
 
-      return new THREE.Vector3(newX, newY, newZ);
-    });
+//       return new THREE.Vector3(newX, newY, newZ);
+//     });
 
-    // Calculates the combined spatial coordinates of the projected vertices
-    // and divides by the number of vertices to get the center position
-    const centerPos = projectedCoordinates.reduce((a, b) => a.add(b), new THREE.Vector3(0, 0, 0)).divideScalar(projectedCoordinates.length);
+//     // Calculates the combined spatial coordinates of the projected vertices
+//     // and divides by the number of vertices to get the center position
+//     const centerPos = projectedCoordinates.reduce((a, b) => a.add(b), new THREE.Vector3(0, 0, 0)).divideScalar(projectedCoordinates.length);
 
-    // Calculates the scale of the caustic plane based on the distance of the
-    // furthest vertex from the center (using euclidean distance)
-    const scale = projectedCoordinates
-      .map(p => Math.sqrt(Math.pow(p.x - centerPos.x, 2), Math.pow(p.z - centerPos.z, 2)))
-      .reduce((a, b) => Math.max(a, b), 0);
+//     // Calculates the scale of the caustic plane based on the distance of the
+//     // furthest vertex from the center (using euclidean distance)
+//     const scale = projectedCoordinates
+//       .map(p => Math.sqrt(Math.pow(p.x - centerPos.x, 2), Math.pow(p.z - centerPos.z, 2)))
+//       .reduce((a, b) => Math.max(a, b), 0);
 
-    // The scale of the plane is multiplied by this correction factor to
-    // avoid the caustics pattern to be cut / overflow the bounds of the plane
-    // my normal projection or my math must be a bit off, so I'm trying to be very conservative here
-    const scaleCorrection = 1.75;
+//     // The scale of the plane is multiplied by this correction factor to
+//     // avoid the caustics pattern to be cut / overflow the bounds of the plane
+//     // my normal projection or my math must be a bit off, so I'm trying to be very conservative here
+//     const scaleCorrection = 1.75;
 
-    causticsPlane.current.scale.set(scale * scaleCorrection, scale * scaleCorrection, scale * scaleCorrection);
-    causticsPlane.current.position.set(centerPos.x, centerPos.y, centerPos.z);
+//     causticsPlane.current.scale.set(scale * scaleCorrection, scale * scaleCorrection, scale * scaleCorrection);
+//     causticsPlane.current.position.set(centerPos.x, centerPos.y, centerPos.z);
 
-    normalCamera.position.set(light.x, light.y, light.z);
-    normalCamera.lookAt(
-      bounds.getCenter(new THREE.Vector3(0, 0, 0)).x,
-      bounds.getCenter(new THREE.Vector3(0, 0, 0)).y,
-      bounds.getCenter(new THREE.Vector3(0, 0, 0)).z
-    );
-    normalCamera.up = new THREE.Vector3(0, 1, 0);
+//     normalCamera.position.set(light.x, light.y, light.z);
+//     normalCamera.lookAt(
+//       bounds.getCenter(new THREE.Vector3(0, 0, 0)).x,
+//       bounds.getCenter(new THREE.Vector3(0, 0, 0)).y,
+//       bounds.getCenter(new THREE.Vector3(0, 0, 0)).z
+//     );
+//     normalCamera.up = new THREE.Vector3(0, 1, 0);
 
-    const originalMaterial = mesh.current.material;
+//     const originalMaterial = mesh.current.material;
 
-    mesh.current.material = normalMaterial;
-    mesh.current.material.side = THREE.BackSide;
+//     mesh.current.material = normalMaterial;
+//     mesh.current.material.side = THREE.BackSide;
 
-    mesh.current.material.uniforms.time.value = clock.elapsedTime;
-    mesh.current.material.uniforms.uDisplace.value = displace;
-    mesh.current.material.uniforms.uAmplitude.value = amplitude;
-    mesh.current.material.uniforms.uFrequency.value = frequency;
+//     mesh.current.material.uniforms.time.value = clock.elapsedTime;
+//     mesh.current.material.uniforms.uDisplace.value = displace;
+//     mesh.current.material.uniforms.uAmplitude.value = amplitude;
+//     mesh.current.material.uniforms.uFrequency.value = frequency;
 
-    gl.setRenderTarget(normalRenderTarget);
-    gl.render(mesh.current, normalCamera);
+//     gl.setRenderTarget(normalRenderTarget);
+//     gl.render(mesh.current, normalCamera);
 
-    mesh.current.material = originalMaterial;
-    mesh.current.material.uniforms.time.value = clock.elapsedTime;
-    mesh.current.material.uniforms.uDisplace.value = displace;
-    mesh.current.material.uniforms.uAmplitude.value = amplitude;
-    mesh.current.material.uniforms.uFrequency.value = frequency;
+//     mesh.current.material = originalMaterial;
+//     mesh.current.material.uniforms.time.value = clock.elapsedTime;
+//     mesh.current.material.uniforms.uDisplace.value = displace;
+//     mesh.current.material.uniforms.uAmplitude.value = amplitude;
+//     mesh.current.material.uniforms.uFrequency.value = frequency;
 
-    causticsQuad.material = causticsComputeMaterial;
-    causticsQuad.material.uniforms.uTexture.value = normalRenderTarget.texture;
-    causticsQuad.material.uniforms.uLight.value = light;
-    causticsQuad.material.uniforms.uIntensity.value = intensity;
+//     causticsQuad.material = causticsComputeMaterial;
+//     causticsQuad.material.uniforms.uTexture.value = normalRenderTarget.texture;
+//     causticsQuad.material.uniforms.uLight.value = light;
+//     causticsQuad.material.uniforms.uIntensity.value = intensity;
 
-    gl.setRenderTarget(causticsComputeRenderTarget);
-    causticsQuad.render(gl);
+//     gl.setRenderTarget(causticsComputeRenderTarget);
+//     causticsQuad.render(gl);
 
-    causticsPlane.current.material = causticsPlaneMaterial;
+//     causticsPlane.current.material = causticsPlaneMaterial;
 
-    causticsPlane.current.material.uniforms.uTexture.value = causticsComputeRenderTarget.texture;
-    causticsPlane.current.material.uniforms.uAberration.value = chromaticAberration;
+//     causticsPlane.current.material.uniforms.uTexture.value = causticsComputeRenderTarget.texture;
+//     causticsPlane.current.material.uniforms.uAberration.value = chromaticAberration;
 
-    gl.setRenderTarget(null);
+//     gl.setRenderTarget(null);
 
-    // spotlightRef.current.position.set(light.x, light.y, light.z);
-    // spotlightRef.current.distance = Math.sqrt(
-    //   Math.pow(spotlightRef.current.position.x - causticsPlane.current.position.x, 2) +
-    //     Math.pow(spotlightRef.current.position.y - causticsPlane.current.position.y, 2) +
-    //     Math.pow(spotlightRef.current.position.z - causticsPlane.current.position.z, 2)
-    // );
-  });
+//     // spotlightRef.current.position.set(light.x, light.y, light.z);
+//     // spotlightRef.current.distance = Math.sqrt(
+//     //   Math.pow(spotlightRef.current.position.x - causticsPlane.current.position.x, 2) +
+//     //     Math.pow(spotlightRef.current.position.y - causticsPlane.current.position.y, 2) +
+//     //     Math.pow(spotlightRef.current.position.z - causticsPlane.current.position.z, 2)
+//     // );
+//   });
 
-  return (
-    <>
-      {/* <SpotLight
-        castShadow
-        ref={spotlightRef}
-        penumbra={8}
-        distance={25}
-        angle={0.95}
-        attenuation={20}
-        anglePower={1}
-        intensity={0.1}
-        color='#fff'
-        // target={causticsPlane.current}
-      /> */}
-      <TorusGeometry ref={mesh} />
-      {/* <TorusknotGeometry ref={mesh} /> */}
-      {/* <TetrahedronGeo ref={mesh}/> */}
-      <mesh ref={causticsPlane} receiveShadow rotation={[-Math.PI / 2, 0, 0]}>
-        {/* <planeGeometry /> */}
-      </mesh>
-      {/* <mesh receiveShadow rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.2, -0.2]}>
-        <planeGeometry args={[50, 50]} />
-        <meshPhongMaterial transparent blending={THREE.CustomBlending} blendSrc={THREE.OneFactor} blendDst={THREE.SrcAlphaFactor} />
-      </mesh> */}
-    </>
-  );
-};
+//   return (
+//     <>
+//       {/* <SpotLight
+//         castShadow
+//         ref={spotlightRef}
+//         penumbra={8}
+//         distance={25}
+//         angle={0.95}
+//         attenuation={20}
+//         anglePower={1}
+//         intensity={0.1}
+//         color='#fff'
+//         // target={causticsPlane.current}
+//       /> */}
+//       <TorusGeometry ref={mesh} />
+//       {/* <TorusknotGeometry ref={mesh} /> */}
+//       {/* <TetrahedronGeo ref={mesh}/> */}
+//       <mesh ref={causticsPlane} receiveShadow rotation={[-Math.PI / 2, 0, 0]}>
+//         {/* <planeGeometry /> */}
+//       </mesh>
+//       {/* <mesh receiveShadow rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.2, -0.2]}>
+//         <planeGeometry args={[50, 50]} />
+//         <meshPhongMaterial transparent blending={THREE.CustomBlending} blendSrc={THREE.OneFactor} blendDst={THREE.SrcAlphaFactor} />
+//       </mesh> */}
+//     </>
+//   );
+// };
