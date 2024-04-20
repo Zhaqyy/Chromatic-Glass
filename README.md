@@ -1,6 +1,6 @@
-# 404 Challenge
+# Chromatic Glass
 
-_A showcase for a 404 Challenge_
+_A showcase for an interactive Chromatic Glass using R3F and Rapier physics_
 
 <!-- ![Preview](/public/preview.gif) -->
 
