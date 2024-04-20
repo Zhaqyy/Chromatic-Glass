@@ -1,35 +1,41 @@
-import * as THREE from "three";
-import React, { useRef, useState, useMemo, forwardRef, Suspense } from "react";
-import { Canvas, useFrame, useLoader, useThree } from "@react-three/fiber";
+// import * as THREE from "three";
+import React, { useRef
+  // , useState, useMemo, forwardRef
+  , Suspense } from "react";
+import { Canvas
+  //,  useFrame, useLoader, useThree 
+  } from "@react-three/fiber";
 import {
-  Box,
-  OrbitControls,
+  // Box,
+  // OrbitControls,
   Environment,
-  PerspectiveCamera,
-  Tetrahedron,
-  useFBO,
-  SpotLight,
-  useGLTF,
-  MeshRefractionMaterial,
-  // MeshTransmissionMaterial,
+  // PerspectiveCamera,
+  // Tetrahedron,
+  // useFBO,
+  // SpotLight,
+  // useGLTF,
+  // MeshRefractionMaterial,
+  MeshTransmissionMaterial,
   // Caustics,
   Text,
-  AccumulativeShadows,
-  RandomizedLight,
+  // AccumulativeShadows,
+  // RandomizedLight,
   Preload,
 } from "@react-three/drei";
+import { Physics, RigidBody } from "@react-three/rapier";
+import { Perf } from "r3f-perf";
+
 // import { MathUtils } from "three";
-import { RGBELoader, FullScreenQuad } from "three-stdlib";
+// import { RGBELoader, FullScreenQuad } from "three-stdlib";
 // import { lerp } from "maath";
 // import { dampE } from "maath/easing";
-import { easing } from "maath";
-import { EffectComposer, Bloom } from "@react-three/postprocessing";
-import { Physics, RigidBody, BallCollider } from "@react-three/rapier";
+// import { easing } from "maath";
+// import { EffectComposer, Bloom } from "@react-three/postprocessing";
 
-import CausticsPlaneMaterial from "./CausticsPlaneMaterial.jsx";
-import CausticsComputeMaterial from "./CausticsComputeMaterial.jsx";
-import NormalMaterial from "./NormalMaterial.jsx";
-import { MeshTransmissionMaterial } from "./MeshTransmissionMaterial.jsx";
+// import CausticsPlaneMaterial from "./CausticsPlaneMaterial.jsx";
+// import CausticsComputeMaterial from "./CausticsComputeMaterial.jsx";
+// import NormalMaterial from "./NormalMaterial.jsx";
+// import { MeshTransmissionMaterial } from "./MeshTransmissionMaterial.jsx";
 
 const config = {
   backsideThickness: 0.9,
@@ -43,76 +49,10 @@ const config = {
   roughness: 0,
   distortion: 1,
   distortionScale: 1,
-  temporalDistortion: 0.02,
+  temporalDistortion: 0.2,
   ior: 1.25,
   color: "#ffffff",
 };
-
-// const TetrahedronGeo = forwardRef((props, ref) => {
-//   return (
-//     <Tetrahedron
-//       ref={ref}
-//       args={[5, 0]}
-//       rotation={[(Math.PI / 180) * 125, (Math.PI / 180) * 45, 0]}
-//       position={[0, 3, 0]}
-//       castShadow
-//       receiveShadow
-//     >
-//       <MeshTransmissionMaterial backside {...config} />
-//     </Tetrahedron>
-//   );
-// });
-
-// const TorusGeometry = forwardRef((props, ref) => {
-//   // const [hovered, setHovered] = useState(false);
-//   // let targetRotation = Math.PI; // Half a turn in radians
-//   // let currentRotation = 0;
-
-//   // useFrame((state, delta) => {
-//   //   // Calculate the new rotation using linear interpolation (lerp)
-//   //   currentRotation = lerp(currentRotation, targetRotation, 0.1);
-
-//   //   // Apply the rotation to your object
-//   //   ref.current.rotation.y = currentRotation;
-//   // });
-
-//   // useFrame((state, delta) => {
-//   //   // dampE(ref.current.rotation.y, Math.PI / 2 , 0.25, delta)
-//   //   // ref.current.rotation.y += 0.005;
-//   //   ref.current.rotation.x = hovered
-//   //   ? MathUtils.lerp(ref.current.rotation.x, -Math.PI * 2, 0.025)
-//   //   : MathUtils.lerp(ref.current.rotation.x, 0, 0.025);
-//   // });
-
-//   // useFrame((state, delta) => {
-//   //   const xRotation = state.pointer.x; // Mouse movement along the X-axis
-//   //   const yRotation = state.pointer.y; // Mouse movement along the Y-axis
-
-//   //   const targetRotation = [-Math.PI / 0.1 - yRotation / 2, -Math.PI / 0.1 - xRotation / 2, 0];
-//   //   easing.dampE(ref.current.rotation, targetRotation, 0.9, delta);
-
-//   // });
-
-//   return (
-//     <mesh
-//       ref={ref}
-//       scale={0.5}
-//       // position={[0, 0, 0]}
-//       // onPointerOver={() => setHovered(true)} onPointerOut={() => setHovered(false)}
-//     >
-//       <torusGeometry args={[5, 1, 4, 4]} />
-//       <MeshTransmissionMaterial backside {...config} />
-//     </mesh>
-//   );
-// });
-// const TorusknotGeometry = forwardRef((props, ref) => {
-//   return (
-//     <mesh ref={ref} scale={0.4} position={[0, 6.5, 0]}>
-//       <torusKnotGeometry args={[10, 3, 600, 160]} />
-//       <MeshTransmissionMaterial backside {...config} />
-//     </mesh>
-//   );
-// });
 
 const App = () => {
   const isMobile = window.innerWidth < 768;
@@ -123,13 +63,11 @@ const App = () => {
       orthographic
       dpr={[1, 2]}
       camera={{
-        // position: [-0.8, 1.25, 2.45]
         zoom: 70,
       }}
     >
-      {/* <color attach='background' args={["#000000"]} /> */}
-      {/* <OrbitControls /> */}
-
+  
+      {/* <Perf position='top-left' /> */}
       <Text
         scale={isMobile ? 0.4 : 1}
         children='THE ENIGMA'
@@ -142,12 +80,9 @@ const App = () => {
       {/* <Caustics /> */}
       <Suspense>
         <Interact />
+        <Environment files='./studio.hdr' ground={{ height: 45, radius: 100, scale: 1001 }} resolution={1} blur={1} />
       </Suspense>
-      {/* <PerspectiveCamera makeDefault position={[10, 10, 10]} fov={65} /> */}
-      <Environment files='./studio.hdr' ground={{ height: 45, radius: 100, scale: 1001 }} resolution={1} blur={1} />
-      {/* <EffectComposer disableNormalPass>
-        <Bloom mipmapBlur luminanceThreshold={0.9} radius={0.05} />
-      </EffectComposer> */}
+
       <Preload all />
     </Canvas>
   );
@@ -157,46 +92,19 @@ export default App;
 
 const Interact = () => {
   const ref = useRef();
-  // const push = () => {
-  //   if (ref.current) {
-  //     // const random = 100 * Math.random();
-  //     ref.current.applyImpulseAtPoint({ x: 0, y: 0, z: 10 });
-  //     // ref.current.addForceAtPoint({ x: 15, y: 15, z: 15 }, { x: random, y: random, z: random }, true);
-  //   }
-  // };
+
   const push = () => {
- 
-      ref.current.applyTorqueImpulse({ x: 100 + (200 * Math.random()), y: 100 + (200 * Math.random()), z: 100 + (200 * Math.random()) }, true);
-  
+    ref.current.applyTorqueImpulse({ x: 100 + 200 * Math.random(), y: 100 + 200 * Math.random(), z: 100 + 200 * Math.random() }, true);
   };
   return (
     <Physics gravity={[0, 0, 0]}>
-      <RigidBody
-        restitution={0}
-        colliders='cuboid'
-        linearDamping={1}
-        angularDamping={1}
-        // friction={0.2}
-        ref={ref}
-        mass={0.1}
-        type='dynamic'
-      >
-        <mesh
-        onClick={push}
-      scale={0.6}
-    >
-      <torusGeometry args={[4, 1, 4, 4]} />
-      <MeshTransmissionMaterial backside {...config} />
-    </mesh>
-      </RigidBody>
-      
-{/* 
-      <RigidBody ref={ref}>
-        <mesh onClick={push}>
-          <boxGeometry/>
-          <meshStandardMaterial color={"red"}/>
+      <RigidBody restitution={0} colliders='cuboid' linearDamping={1} angularDamping={1} ref={ref} mass={0.1} type='dynamic'>
+        <mesh onClick={push} scale={0.6} position={[0, 1, 0]}>
+          <torusGeometry args={[4, 1, 4, 4]} />
+          <MeshTransmissionMaterial backside {...config} />
         </mesh>
-      </RigidBody> */}
+      </RigidBody>
+
     </Physics>
   );
 };
