@@ -127,7 +127,7 @@ const App = () => {
         zoom: 70,
       }}
     >
-      <color attach='background' args={["#000000"]} />
+      {/* <color attach='background' args={["#000000"]} /> */}
       {/* <OrbitControls /> */}
 
       <Text
@@ -165,14 +165,9 @@ const Interact = () => {
   //   }
   // };
   const push = () => {
-    // if (ref.current) {
-      // const random = Math.random() - 3.5;
-      // const random = 100 + (200 * Math.random());
-      // ref.current.applyImpulse({ x: 0, y: 1, z: 0 }, true);
-      // ref.current.applyTorueImpulse({ x: 0, y: 1, z: 0 });
-      // ref.current.addForceAtPoint({ x: 15, y: 15, z: 15 }, { x: random, y: random, z: random }, true);
+ 
       ref.current.applyTorqueImpulse({ x: 100 + (200 * Math.random()), y: 100 + (200 * Math.random()), z: 100 + (200 * Math.random()) }, true);
-    // }
+  
   };
   return (
     <Physics gravity={[0, 0, 0]}>

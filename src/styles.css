@@ -9,7 +9,12 @@ body,
   height: 100%;
   margin: 0;
   padding: 0;
-  background-color: #272727;
+  background: radial-gradient(20% 30% at 50% 50%, #242f46 0%, #041001 100%);
+    /* background-size: 80%; */
+    background-position: center;
+    background-repeat: repeat;
+
+
   -webkit-touch-callout: none;
   -webkit-user-select: none;
   -khtml-user-select: none;
@@ -17,6 +22,7 @@ body,
   -ms-user-select: none;
   user-select: none;
   overflow: hidden;
+  animation: glow 5s infinite ease alternate;
 }
 
 #root {
@@ -30,4 +36,13 @@ body {
   font-family: helvetica neue, helvetica, arial, sans-serif;
   color: black;
   -webkit-font-smoothing: antialiased;
+}
+
+@keyframes glow {
+  0%{
+    background-size: 70%;
+  }
+  100%{
+    background-size: 130%;
+  }
 }
